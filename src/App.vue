@@ -1,14 +1,18 @@
 <template>
-  <div>
-    <AppHeader />
+  <AppHeader />
+  <div class='main-container'>
     <router-view />
   </div>
 </template> 
 
 <script setup>
-import AppHeader from './components/Header.vue'
+import AppHeader from './components/AppHeader.vue'
 </script>
 
-<style>
-
+<style> 
+.main-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>

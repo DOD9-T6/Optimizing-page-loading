@@ -8,10 +8,8 @@
     </header>
 </template>
 
-<script>
-export default {
-    name: 'AppHeader',
-}; 
+<script setup>
+
 </script>
 
 <style scoped>
