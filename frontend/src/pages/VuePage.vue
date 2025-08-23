@@ -1,15 +1,15 @@
 <template>
 <div class="vue-page">
-  <div class="debug-info">
-    <p>Всего пользователей: {{ usersStore.users.length }}</p>
-    <p>Видимых пользователей: {{ visibleUsers.length }}</p>
+<div class="debug-info">
+    <p>Всего пользователей: {{ clientsStore.clients.length }}</p>
+    <p>Видимых пользователей: {{ visibleCount }}</p>
     <input v-model="searchQuery" type="search" placeholder="Search...">
   </div>
-  
-  <div class="vue-table-container" ref="listContainer" @scroll="onScroll">
+
+<div class="vue-table-container" ref="listContainer" @scroll="onScroll">
     <table class="vue-table" border="2">
-      <thead>
-        <tr>
+        <thead>
+          <tr>
           <th>id</th>
           <th>name</th>
           <th>surname</th>
@@ -21,68 +21,50 @@
           <th>typeOfPayment</th>
           <th>datePay</th>
           <th>dateEndPay</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in filteredUsers" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.surname }}</td>
-            <td>{{ user.dob }}</td>
-            <td>{{ user.fee }}</td>
-            <td>{{ user.debt }}</td>
-            <td @click="setSelectedId(user.id)" style="cursor: pointer;"> {{ user.notes ? 'true' : 'false' }}</td>
-            <td>
-              <select v-model="user.provider.id" @change="updateProvider(user)">
-                <option v-for="prov in providers" :key="prov.id" :value="prov.id">
-                  {{ prov.firstname }} {{ prov.surname }}
-                </option>
-               </select>
-            </td>
-            <td>{{ user.type_of_payment?.name || 'N/A' }}</td>
-            <td>{{ user.date_pay }}</td>
-            <td>{{ user.date_end_pay }}</td>
           </tr>
-      </tbody>
+        </thead>
+        <tbody>
+          <tr v-for="client in filteredUsers" :key="client.id">
+              <td>{{ client.id }}</td>
+              <td>{{ client.name }}</td>
+              <td>{{ client.surname }}</td>
+              <td>{{ client.dob }}</td>
+              <td>{{ client.fee }}</td>
+              <td>{{ client.debt }}</td>
+              <td @click="setSelectedId(client.id)" style="cursor: pointer;"> {{ client.notes ? 'true' : 'false' }}</td>
+              <td>
+                <select v-model="client.provider.id" @change="updateProvider(client)">
+                  <option v-for="prov in clientsStore.providers" :key="prov.id" :value="prov.id">
+                    {{ prov.firstname }} {{ prov.surname }}
+                  </option>
+                 </select>
+              </td>
+              <td>{{ client.type_of_payment?.name || 'N/A' }}</td>
+              <td>{{ client.date_pay }}</td>
+              <td>{{ client.date_end_pay }}</td>
+            </tr>
+        </tbody>
     </table>
   </div>
 </div>
-<PopUpWindow v-if="usersStore.entryID" />
+<PopUpWindow v-if="clientsStore.entryID" />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUsersStore } from '../stores/usersStore.js'
+import { useClientsStore } from '../stores/clientsStore.js'
 import PopUpWindow from '@/components/PopUpWindow.vue'
 
 
-const usersStore = useUsersStore()
+const clientsStore = useClientsStore()
+
+// ===================================СКРОЛЛ
 const visibleCount = ref(50)
 const listContainer = ref(null)
-const searchQuery = ref("")
-
-// поменять на бек
-const providers = ref([
-  { id: 5, firstname: "Mateo", surname: "Jones" },
-  { id: 6, firstname: "Olivia", surname: "Brown" },
-  { id: 7, firstname: "Liam", surname: "Davis" }
-])
-
-const updateProvider = (user) => {
-  const selected = providers.value.find(p => p.id === user.provider.id)
-  if (selected) {
-    user.provider = selected
-  }
-}
-
-const setSelectedId = (id) => {
-  usersStore.entryID = id
-}
 
 const visibleUsers = computed(() => {
-  return Array.isArray(usersStore.users) ? usersStore.users.slice(0, visibleCount.value) : []
+  return Array.isArray(clientsStore.clients) ? clientsStore.clients.slice(0, visibleCount.value) : []
 })
-
 
 const onScroll = () => {
   const el = listContainer.value
@@ -92,16 +74,35 @@ const onScroll = () => {
   }
 }
 
+// ===================================
+// =========================================Поиск
+const searchQuery = ref("")
+
+const setSelectedId = (id) => {
+  clientsStore.entryID = id
+}
+
 const filteredUsers = computed(() => {
   return visibleUsers.value.filter(user =>
     user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
+// ===================================
+// =========================================обновление провайдера
+const updateProvider = async (client) => {
+  try {
+    await clientsStore.editingProvider(client.id, client.provider.id)
+    console.log('Провайдер успешно обновлен')
+  } catch (error) {
+    console.error('Ошибка обновления провайдера:', error)
+  }
+}
+// ===================================
 
-onMounted(async () => {
-  await usersStore.getUsers()
+onMounted(() => {
+  clientsStore.getClients()
+  clientsStore.getProviders()
 })
-
 </script>
 
 <style scoped>

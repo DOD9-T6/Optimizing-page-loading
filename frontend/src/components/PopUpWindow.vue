@@ -14,12 +14,12 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useUsersStore } from '@/stores/usersStore.js'
+import { useClientsStore } from '@/stores/clientsStore.js'
 
-const usersStore = useUsersStore()
+const clientsStore = useClientsStore()
 
 const currentNote = computed(() => {
-  const user = usersStore.users.find(u => u.id === usersStore.entryID)
+  const user = clientsStore.clients.find(u => u.id === clientsStore.entryID)
   return user?.notes || ''
 })
 
@@ -30,11 +30,11 @@ watch(currentNote, (val) => {
 })
 
 const closePopUp = () => {
-  usersStore.entryID = null
+  clientsStore.entryID = null
 }
 
 const addNote = async () => {
-  await usersStore.editingNote(usersStore.entryID, newNote.value)
+  await clientsStore.editingNote(clientsStore.entryID, newNote.value)
   closePopUp()
 }
 </script>
