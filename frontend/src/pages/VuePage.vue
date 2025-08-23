@@ -1,10 +1,9 @@
 <template>
 <div class="vue-page">
   <div class="debug-info">
-    <p>Всего пользователей: {{ userStore.users.length }}</p>
+    <p>Всего пользователей: {{ usersStore.users.length }}</p>
     <p>Видимых пользователей: {{ visibleUsers.length }}</p>
-    <button @click="userStore.clearUsers()">Очистить</button>
-    <button @click="userStore.generateUsers(true)">Перегенерировать</button>
+    <input v-model="searchQuery" type="search" placeholder="Search...">
   </div>
   
   <div class="vue-table-container" ref="listContainer" @scroll="onScroll">
@@ -25,33 +24,65 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in visibleUsers" :key="user.id">
+        <tr v-for="user in filteredUsers" :key="user.id">
             <td>{{ user.id }}</td>
             <td>{{ user.name }}</td>
             <td>{{ user.surname }}</td>
             <td>{{ user.dob }}</td>
             <td>{{ user.fee }}</td>
             <td>{{ user.debt }}</td>
-            <td>{{ user.notes }}</td>
-            <td>{{ user.provider?.firstName || 'N/A' }}</td>
-            <td>{{ user.typeOfPayment?.name || 'N/A' }}</td>
-            <td>{{ user.datePay }}</td>
-            <td>{{ user.dateEndPay }}</td>
+            <td @click="setSelectedId(user.id)" style="cursor: pointer;"> {{ user.notes ? 'true' : 'false' }}</td>
+            <td>
+              <select v-model="user.provider.id" @change="updateProvider(user)">
+                <option v-for="prov in providers" :key="prov.id" :value="prov.id">
+                  {{ prov.firstname }} {{ prov.surname }}
+                </option>
+               </select>
+            </td>
+            <td>{{ user.type_of_payment?.name || 'N/A' }}</td>
+            <td>{{ user.date_pay }}</td>
+            <td>{{ user.date_end_pay }}</td>
           </tr>
       </tbody>
     </table>
   </div>
 </div>
+<PopUpWindow v-if="usersStore.entryID" />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUsersStore } from '../stores/userStore.js'
+import { useUsersStore } from '../stores/usersStore.js'
+import PopUpWindow from '@/components/PopUpWindow.vue'
 
-const userStore = useUsersStore()
+
+const usersStore = useUsersStore()
 const visibleCount = ref(50)
-const visibleUsers = computed(() => userStore.users.slice(0, visibleCount.value))
 const listContainer = ref(null)
+const searchQuery = ref("")
+
+// поменять на бек
+const providers = ref([
+  { id: 5, firstname: "Mateo", surname: "Jones" },
+  { id: 6, firstname: "Olivia", surname: "Brown" },
+  { id: 7, firstname: "Liam", surname: "Davis" }
+])
+
+const updateProvider = (user) => {
+  const selected = providers.value.find(p => p.id === user.provider.id)
+  if (selected) {
+    user.provider = selected
+  }
+}
+
+const setSelectedId = (id) => {
+  usersStore.entryID = id
+}
+
+const visibleUsers = computed(() => {
+  return Array.isArray(usersStore.users) ? usersStore.users.slice(0, visibleCount.value) : []
+})
+
 
 const onScroll = () => {
   const el = listContainer.value
@@ -61,11 +92,16 @@ const onScroll = () => {
   }
 }
 
-
-onMounted(() => {
-  userStore.generateUsers()
-  console.log('Store после монтирования:', userStore.users.length)
+const filteredUsers = computed(() => {
+  return visibleUsers.value.filter(user =>
+    user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
 })
+
+onMounted(async () => {
+  await usersStore.getUsers()
+})
+
 </script>
 
 <style scoped>
