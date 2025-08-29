@@ -4,6 +4,7 @@
             <router-link class="header-link" to="/devextreme">DevExtreme</router-link>
             <router-link class="header-link" to="/vue">Vue</router-link>
             <router-link class="header-link" to="/quasar">Quasar</router-link>
+            <router-link class="header-link" to="/badPage">NotOptimizedPage</router-link>
         </nav>
     </header>
 </template>

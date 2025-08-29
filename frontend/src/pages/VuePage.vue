@@ -28,20 +28,44 @@
               <td>{{ client.id }}</td>
               <td>{{ client.name }}</td>
               <td>{{ client.surname }}</td>
-              <td>{{ client.dob }}</td>
+              <td>
+                <q-input
+                  v-model="client.dob"
+                  type="date"
+                  outlined
+                  dense
+                  @update:model-value="val => updateData(client.id, 'dob', val)"
+                />
+              </td>
               <td>{{ client.fee }}</td>
               <td>{{ client.debt }}</td>
               <td @click="setSelectedId(client.id)" style="cursor: pointer;"> {{ client.notes ? 'true' : 'false' }}</td>
               <td>
-                <select v-model="client.provider.id" @change="updateProvider(client)">
+                <select v-model="client.provider.id" @change="updateData(client.id, 'provider', client.provider.id)">
                   <option v-for="prov in clientsStore.providers" :key="prov.id" :value="prov.id">
                     {{ prov.firstname }} {{ prov.surname }}
                   </option>
                  </select>
               </td>
               <td>{{ client.type_of_payment?.name || 'N/A' }}</td>
-              <td>{{ client.date_pay }}</td>
-              <td>{{ client.date_end_pay }}</td>
+              <td>
+                <q-input
+                  v-model="client.date_pay"
+                  type="date"
+                  outlined
+                  dense
+                  @update:model-value="val => updateData(client.id, 'date_pay', val)"
+                />
+              </td>
+              <td>
+                <q-input
+                  v-model="client.date_end_pay"
+                  type="date"
+                  outlined
+                  dense
+                  @update:model-value="val => updateData(client.id, 'date_end_pay', val)"
+                />
+              </td>
             </tr>
         </tbody>
     </table>
@@ -53,12 +77,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useClientsStore } from '../stores/clientsStore.js'
-import PopUpWindow from '@/components/PopUpWindow.vue'
+import PopUpWindow from '@/components/VueUi/PopUpWindow.vue'
 
 
 const clientsStore = useClientsStore()
 
-// ===================================СКРОЛЛ
 const visibleCount = ref(50)
 const listContainer = ref(null)
 
@@ -74,8 +97,6 @@ const onScroll = () => {
   }
 }
 
-// ===================================
-// =========================================Поиск
 const searchQuery = ref("")
 
 const setSelectedId = (id) => {
@@ -87,17 +108,14 @@ const filteredUsers = computed(() => {
     user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
-// ===================================
-// =========================================обновление провайдера
-const updateProvider = async (client) => {
+
+const updateData = async (clientId, field, value) => {
   try {
-    await clientsStore.editingProvider(client.id, client.provider.id)
-    console.log('Провайдер успешно обновлен')
+    await clientsStore.updateField(clientId, field, value)
   } catch (error) {
-    console.error('Ошибка обновления провайдера:', error)
+    console.error(error)
   }
 }
-// ===================================
 
 onMounted(() => {
   clientsStore.getClients()

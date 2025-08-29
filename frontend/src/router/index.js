@@ -17,8 +17,13 @@ const routes = [
         component: () => import('@/pages/QuasarPage.vue')
     },
     {
+        name: 'notOptimizedPage',
+        path: '/badPage',
+        component: () => import('@/pages/NotOptimizedPage.vue')
+    },
+    {
         path: '/',
-        redirect: '/devextreme'
+        redirect: '/vue'
     },
 ]
 

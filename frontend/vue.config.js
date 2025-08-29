@@ -2,7 +2,10 @@ const { defineConfig } = require('@vue/cli-service')
 const webpack = require('webpack')
 
 module.exports = defineConfig({
-  transpileDependencies: true,
+  transpileDependencies: [
+    'quasar' 
+  ],
+
   configureWebpack: {
     plugins: [
       new webpack.DefinePlugin({
@@ -10,14 +13,22 @@ module.exports = defineConfig({
       })
     ]
   },
+
   devServer: {
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,
-        pathRewrite: { '^/api': '/api' } // важно, чтобы проксировалось правильно
+        pathRewrite: { '^/api': '/api' }
       }
+    }
+  },
+
+  pluginOptions: {
+    quasar: {
+      importStrategy: 'kebab',
+      rtlSupport: false
     }
   }
 })

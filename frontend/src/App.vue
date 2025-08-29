@@ -1,18 +1,16 @@
 <template>
-  <AppHeader />
-  <div class='main-container'>
-    <router-view />
-  </div>
-</template> 
+  <q-layout view="lHh Lpr lFf">
+    <AppHeader />
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+  </q-layout>
+</template>
 
 <script setup>
 import AppHeader from './components/AppHeader.vue'
 </script>
 
-<style> 
-.main-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+<style>
 </style>

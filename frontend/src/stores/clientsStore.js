@@ -6,34 +6,41 @@ export const useClientsStore = defineStore('clientsStore', {
         providers: [],
         clients: [],
         entryID: null,
+        clientsPaging: [],
     }),
     actions: {
         async getProviders() {
+          try{
             const response = await axios.get('/api/providers/')
             this.providers = response.data
-        },
-        async getClients() {
-            const response = await axios.get('/api/users/')
-            this.clients = response.data
-        },
-        async editingNote(entryID, newNote) {
-            try{
-              await axios.patch(`/api/users/${entryID}/`, {
-                "notes": newNote
-              })
-            } catch(error) {
-              console.error("Ошибка при добавлении заметки:", error)
-            }
-        },
-        async editingProvider(clientId, providerId) {
-          try{
-            await axios.patch(`/api/users/${clientId}/`, {
-              "provider": providerId
-            })
-          } catch(error) {
-            console.error("Ошибка при изменении/добавлении провайдера:", error)
+          }catch(error) {
+            console.error("Ошибка при загрузке провайдеров:", error)
           }
         },
+        async getClients() {
+          try{
+            const response = await axios.get('/api/users/')
+            this.clients = response.data
+          }catch(error){
+            console.error("Ошибка при добавлении заметки:", error)
+          }
+        },
+        async getClientsPage(limit, offset) {
+          try {
+            const response = await axios.get(`/api/users?limit=${limit}&offset=${offset}`)
+            this.clientsPaging = response.data.results
+            return response.data
+          } catch (error) {
+            console.error("Ошибка при получении страницы:", error)
+          }
+        },
+        async updateField(clientId, field, value) {
+          try {
+            await axios.patch(`/api/users/${clientId}/`, { [field]: value })
+          } catch (error) {
+            console.error(`Ошибка при обновлении ${field}:`, error)
+          }
+        }
     }
 
 })

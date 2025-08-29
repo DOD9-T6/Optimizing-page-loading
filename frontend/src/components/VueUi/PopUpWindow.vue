@@ -34,7 +34,11 @@ const closePopUp = () => {
 }
 
 const addNote = async () => {
-  await clientsStore.editingNote(clientsStore.entryID, newNote.value)
+  await clientsStore.updateField(clientsStore.entryID, 'notes', newNote.value)
+  const client = clientsStore.clients.find(c => c.id === clientsStore.entryID)
+    if (client) {
+      client.notes = newNote.value
+    }
   closePopUp()
 }
 </script>

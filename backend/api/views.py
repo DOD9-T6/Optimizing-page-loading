@@ -2,8 +2,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.pagination import LimitOffsetPagination
 
-from .serializers import UserReadSerializer, UserWriteSerializer
-from users.models import CustomUser
+from .serializers import (
+    UserReadSerializer,
+    UserWriteSerializer,
+    ProviderSerializer,
+    TypeOfPaymentSerializer
+)
+from users.models import CustomUser, Provider
 
 
 class UserViewSet(ModelViewSet):
@@ -18,3 +23,12 @@ class UserViewSet(ModelViewSet):
         return CustomUser.objects.select_related(
             'provider', 'type_of_payment'
         )
+
+
+class ProviderViewSet(ModelViewSet):
+    serializer_class = ProviderSerializer
+    queryset = Provider.objects.all()
+
+
+class TypeOfPaymentViewSet(ModelViewSet):
+    serializer_class = TypeOfPaymentSerializer
